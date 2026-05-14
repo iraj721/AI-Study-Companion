@@ -26,39 +26,37 @@ show_header()
 show_stats_strip()
 
 # ================= SAVE FUNCTION =================
+# ================= SIMPLE SAVE FUNCTION =================
 def save_document(content, title):
-    with st.expander("💾 Save this document", expanded=False):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            file_name = st.text_input("File name", value=title.lower().replace(" ", "_"), key=f"name_{title}")
-        
-        with col2:
-            save_type = st.radio("Save to", ["💻 Computer", "📁 Project Folder"], key=f"type_{title}")
-        
-        doc = Document()
-        doc.add_heading(title, level=1)
-        for line in content.split('\n'):
+    """Simple save function - direct download without any options"""
+    
+    # Create filename
+    filename = title.lower().replace(" ", "_").replace("___", "_")
+    
+    # Create Word document
+    doc = Document()
+    doc.add_heading(title.replace("_", " "), level=1)
+    
+    # Add content with proper formatting
+    for line in content.split('\n'):
+        if line.strip():
             doc.add_paragraph(line)
-        
-        if save_type == "💻 Computer":
-            buffer = BytesIO()
-            doc.save(buffer)
-            buffer.seek(0)
-            st.download_button(
-                label="⬇ Download",
-                data=buffer,
-                file_name=f"{file_name}.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                key=f"download_{title}"
-            )
         else:
-            if st.button("💾 Save", key=f"save_{title}"):
-                folder_path = os.path.join(os.getcwd(), "saved_documents")
-                os.makedirs(folder_path, exist_ok=True)
-                full_path = os.path.join(folder_path, f"{file_name}.docx")
-                doc.save(full_path)
-                st.success(f"✅ Saved to `{full_path}`")
+            doc.add_paragraph()  # Empty line for spacing
+    
+    # Save to buffer
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    # Direct download button
+    st.download_button(
+        label="📥 Download as Word Document",
+        data=buffer,
+        file_name=f"{filename}.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        use_container_width=True
+    )
 
 # ================= RESET OUTPUT =================
 if 'last_option' not in st.session_state:
