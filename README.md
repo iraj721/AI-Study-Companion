@@ -17,5 +17,5 @@ An intelligent academic assistant that transforms documents into interactive lea
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/AI-Study-Companion.git
+git clone https://github.com/iraj721/AI-Study-Companion.git
 cd AI-Study-Companion
