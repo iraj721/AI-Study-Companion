@@ -761,6 +761,59 @@ details[open] > div {
     display: none !important;
 }
 
+/* ===== FORCE UPLOADER DESIGN - CLEAN ===== */
+/* Hide default drag drop text */
+[data-testid="stFileUploader"] > div:first-child {
+    background: #0e0e1a !important;
+    border: 2px dashed #7c3aed !important;
+    border-radius: 1rem !important;
+    padding: 2rem !important;
+}
+
+/* Hide extra text */
+[data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] {
+    display: none !important;
+}
+
+/* Style the button only */
+[data-testid="stFileUploader"] button {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 0.75rem !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 700 !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+/* Clean file name display */
+[data-testid="stFileUploader"] [data-testid="stVerticalBlock"] {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* ===== HIDE UPLOADER EXTRA TEXT ===== */
+[data-testid="stFileUploader"] small {
+    display: none !important;
+}
+
+[data-testid="stFileUploader"] .st-emotion-cache-1v0mbdj {
+    display: none !important;
+}
+
+/* Clean upload area */
+.stFileUploaderDropzone {
+    background: #0e0e1a !important;
+    border: 2px dashed #7c3aed !important;
+    border-radius: 1rem !important;
+}
+
+.stFileUploaderDropzone:hover {
+    background: #131322 !important;
+    border-color: #a78bfa !important;
+}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {

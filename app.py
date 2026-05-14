@@ -70,20 +70,20 @@ def reset_output(option):
 
 # ================= FILE UPLOADER =================
 uploaded_file = st.file_uploader(
-    "Upload your document",
+    "Choose a file",
     type=["pdf", "pptx", "png", "jpg", "jpeg"],
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    help="Upload PDF, PPTX, PNG, JPG, JPEG (Max 200MB)"
 )
 
 # Show upload prompt if no file
-# Show upload prompt if no file
 if not uploaded_file:
-    # Custom minimal upload prompt
+    # Clean upload prompt
     st.markdown("""
-        <div style="text-align: center; padding: 2rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
-            <h3 style="color: #e8e4ff; margin-bottom: 0.5rem;">Upload your study material</h3>
-            <p style="color: #a78bfa; margin-bottom: 1rem;">PDF, PPTX, PNG, JPG, JPEG supported</p>
+        <div style="text-align: center; padding: 3rem 2rem; background: linear-gradient(135deg, #0a0a12, #08080e); border-radius: 1rem; border: 1px solid rgba(124, 58, 237, 0.3); margin: 1rem 0;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+            <h3 style="color: #e8e4ff; margin-bottom: 0.5rem;">Ready to Study?</h3>
+            <p style="color: #a78bfa; margin-bottom: 0;">Click the button to upload your document</p>
         </div>
     """, unsafe_allow_html=True)
     st.markdown("---")
