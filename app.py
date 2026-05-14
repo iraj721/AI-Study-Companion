@@ -10,6 +10,24 @@ from utils.document_reader import (
 from utils.ai_engine import ask_ai
 from frontend.components import load_css, show_header, show_stats_strip, show_all_features, show_upload_prompt, show_quiz_card, show_result_card, show_score_card
 
+import hashlib
+
+@st.cache_data(ttl=3600)
+def get_cached_ai_response(prompt, text_hash):
+    """Cache AI responses to avoid repeated API calls"""
+    return ask_ai(prompt)
+
+@st.cache_data(ttl=7200)
+def get_cached_text(file_bytes, file_type):
+    """Cache extracted text based on file content"""
+    if "pdf" in file_type:
+        return extract_text_from_pdf(file_bytes)
+    elif "presentation" in file_type:
+        return extract_text_from_ppt(file_bytes)
+    elif "image" in file_type:
+        return extract_text_from_image(file_bytes)
+    return ""
+
 # Page config
 st.set_page_config(
     page_title="AI Study Companion",
@@ -17,6 +35,19 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+st.markdown("""
+    <style>
+        /* Disable animations for faster rendering */
+        .fade-in, .slide-left, .slide-right, .scale-in {
+            animation: none !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Add loading hint
+loading_placeholder = st.empty()
+loading_placeholder.info("🚀 Warming up AI engine... (first request may take 10-15 seconds)")
 
 # Load CSS
 load_css()
@@ -95,12 +126,8 @@ if not uploaded_file:
 file_type = uploaded_file.type
 
 with st.spinner("📄 Processing your document..."):
-    if "pdf" in file_type:
-        text = extract_text_from_pdf(uploaded_file)
-    elif "presentation" in file_type:
-        text = extract_text_from_ppt(uploaded_file)
-    elif "image" in file_type:
-        text = extract_text_from_image(uploaded_file)
+    if "pdf" in file_type or "presentation" in file_type or "image" in file_type:
+        text = get_cached_text(uploaded_file, file_type)
     else:
         st.error("Unsupported file type")
         st.stop()
@@ -151,7 +178,8 @@ if clean_option == "Summary":
     if st.button("✨ Generate Summary", use_container_width=True):
         with st.spinner("🤖 AI is analyzing and summarizing your document..."):
             prompt = f"Summarize this text in bullet points (max 500 words):\n\n{text[:4000]}"
-            response = ask_ai(prompt)
+            text_hash = hashlib.md5(text[:2000].encode()).hexdigest()
+            response = get_cached_ai_response(prompt, text_hash)
         st.session_state.output = response
     
     if st.session_state.get("output"):
@@ -162,7 +190,8 @@ elif clean_option == "Detailed":
     if st.button("✨ Generate Detailed Overview", use_container_width=True):
         with st.spinner("🤖 AI is creating detailed explanation..."):
             prompt = f"Provide a detailed explanation of this topic with introduction, key concepts, examples, and conclusion:\n\n{text[:4000]}"
-            response = ask_ai(prompt)
+            text_hash = hashlib.md5(text[:2000].encode()).hexdigest()
+            response = get_cached_ai_response(prompt, text_hash)
         st.session_state.output = response
     
     if st.session_state.get("output"):
@@ -175,7 +204,8 @@ elif clean_option == "MCQs":
     if st.button("✨ Generate MCQs", use_container_width=True):
         with st.spinner("🤖 AI is generating questions..."):
             prompt = f"Generate {num} MCQs from this text. Format each as:\nQ1. Question\nA) option\nB) option\nC) option\nD) option\nAnswer: X\n\nText:\n{text[:4000]}"
-            response = ask_ai(prompt)
+            text_hash = hashlib.md5(text[:2000].encode()).hexdigest()
+            response = get_cached_ai_response(prompt, text_hash)
         
         # Parse MCQs
         mcqs = {}
@@ -222,7 +252,8 @@ elif clean_option == "Short":
     if st.button("✨ Generate Short Questions", use_container_width=True):
         with st.spinner("🤖 AI is generating questions with answers..."):
             prompt = f"Generate {num} short answer questions with answers (each answer 2-3 lines) from this text. Format as:\nQ1. Question\nAnswer: ...\n\nText:\n{text[:4000]}"
-            response = ask_ai(prompt)
+            text_hash = hashlib.md5(text[:2000].encode()).hexdigest()
+            response = get_cached_ai_response(prompt, text_hash)
         st.session_state.output = response
     
     if st.session_state.get("output"):
@@ -233,7 +264,8 @@ elif clean_option == "Key":
     if st.button("✨ Extract Key Points", use_container_width=True):
         with st.spinner("🤖 AI is extracting important points..."):
             prompt = f"Extract the 10 most important key points from this text in bullet points:\n\n{text[:4000]}"
-            response = ask_ai(prompt)
+            text_hash = hashlib.md5(text[:2000].encode()).hexdigest()
+            response = get_cached_ai_response(prompt, text_hash)
         st.session_state.output = response
     
     if st.session_state.get("output"):
@@ -244,8 +276,11 @@ elif clean_option == "Difficult":
     if st.button("✨ Find Difficult Words", use_container_width=True):
         with st.spinner("🤖 AI is identifying difficult words..."):
             prompt = f"Identify difficult or technical words from this text and explain them in simple terms. Format as a list:\n\n{text[:4000]}"
-            response = ask_ai(prompt)
+            text_hash = hashlib.md5(text[:2000].encode()).hexdigest()
+            response = get_cached_ai_response(prompt, text_hash)
         st.session_state.output = response
     
     if st.session_state.get("output"):
         display_content(st.session_state.output, "Difficult_Words")
+
+loading_placeholder.empty()
